@@ -9,5 +9,4 @@ class QuickdemoApplicationTests {
 	@Test
 	void contextLoads() {
 	}
-
 }

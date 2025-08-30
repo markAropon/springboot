@@ -31,8 +31,13 @@ public class PatientController {
     private final PatientInsuranceService patientInsuranceService;
 
     @GetMapping
-    public ResponseEntity<List<PatientResponseDTO>> getAllPatients() {
-        return ResponseEntity.ok(patientService.getAllPatients());
+    public ResponseEntity<?> getAllPatients(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "15") int size,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Integer age
+    ) {
+        return ResponseEntity.ok(patientService.getPatients(page, size, name, age));
     }
 
     @GetMapping("/{id}")
@@ -57,7 +62,6 @@ public class PatientController {
         return ResponseEntity.noContent().build();
     }
     
-    // Patient-related endpoints
     @GetMapping("/{id}/admissions")
     public ResponseEntity<List<AdmissionResponseDTO>> getPatientAdmissions(@PathVariable Long id) {
         return ResponseEntity.ok(admissionService.getAdmissionsByPatient(id));
@@ -75,7 +79,7 @@ public class PatientController {
         dto.setPatientId(id);
         return ResponseEntity.status(HttpStatus.CREATED).body(medicalHistoryService.create(dto));
     }
-    
+
     @GetMapping("/{id}/insurances")
     public ResponseEntity<List<InsuranceResponseDTO>> getPatientInsurances(@PathVariable Long id) {
         return ResponseEntity.ok(insuranceService.getInsurancesByPatient(id));

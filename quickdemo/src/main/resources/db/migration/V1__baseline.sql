@@ -199,17 +199,6 @@ CREATE TABLE patient_insurances (
     is_primary BOOLEAN DEFAULT TRUE
 );
 
--- Payments
-CREATE TABLE payments (
-    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    invoice_id INT NOT NULL REFERENCES invoices(id),
-    payer_type VARCHAR NOT NULL,
-    insurance_id INT REFERENCES insurances(id),
-    amount DECIMAL NOT NULL,
-    payment_date TIMESTAMP NOT NULL,
-    method VARCHAR,
-    reference VARCHAR
-);
 -- Bills
 CREATE TABLE bills (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -245,4 +234,15 @@ CREATE TABLE invoice_items (
     invoice_id INT NOT NULL REFERENCES invoices(id),
     bill_item_id INT NOT NULL REFERENCES bill_items(id),
     amount DECIMAL NOT NULL
+);
+-- Payments
+CREATE TABLE payments (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    invoice_id INT NOT NULL REFERENCES invoices(id),
+    payer_type VARCHAR NOT NULL,
+    insurance_id INT REFERENCES insurances(id),
+    amount DECIMAL NOT NULL,
+    payment_date TIMESTAMP NOT NULL,
+    method VARCHAR,
+    reference VARCHAR
 );

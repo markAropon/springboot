@@ -7,7 +7,6 @@ import com.bootcamp.quickdemo.exception.ResourceNotFoundException;
 import com.bootcamp.quickdemo.mappers.Impl.PatientInsuranceMapper;
 import com.bootcamp.quickdemo.model.InsuranceModel;
 import com.bootcamp.quickdemo.model.PatientInsuranceModel;
-import com.bootcamp.quickdemo.model.PatientModel;
 import com.bootcamp.quickdemo.repository.InsuranceRepository;
 import com.bootcamp.quickdemo.repository.PatientInsuranceRepository;
 import com.bootcamp.quickdemo.repository.PatientRepository;

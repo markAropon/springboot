@@ -17,6 +17,17 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class PatientServiceImpl implements PatientService {
+    @Override
+    public org.springframework.data.domain.Page<PatientResponseDTO> getPatients(int page, int size, String name, Integer age) {
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size);
+        org.springframework.data.domain.Page<PatientModel> patientPage;
+        if (name != null && !name.isEmpty()) {
+            patientPage = patientRepository.findByNameContainingIgnoreCase(name, pageable);
+        } else {
+            patientPage = patientRepository.findAll(pageable);
+        }
+        return patientPage.map(patientMapper::toDto);
+    }
 
     private final PatientRepository patientRepository;
     private final PatientMapper patientMapper;
