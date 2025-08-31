@@ -37,8 +37,21 @@ public class AdmissionIntegrationTest {
     @BeforeEach
     public void setup() {
         admissionRepository.deleteAll();
-        admission1 = AdmissionModel.builder().status("status").build();
-        admission2 = AdmissionModel.builder().status("Surgery").build();
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        admission1 = AdmissionModel.builder()
+            .patientId(1)
+            .doctorId(1)
+            .purposeId(1)
+            .admissionDate(now)
+            .status("status")
+            .build();
+        admission2 = AdmissionModel.builder()
+            .patientId(2)
+            .doctorId(2)
+            .purposeId(2)
+            .admissionDate(now.plusDays(1))
+            .status("Surgery")
+            .build();
         admission1 = admissionRepository.save(admission1);
         admission2 = admissionRepository.save(admission2);
     }
@@ -61,7 +74,14 @@ public class AdmissionIntegrationTest {
 
     @Test
     public void testCreateAdmission() throws Exception {
-        AdmissionRequestDTO newAdmission = AdmissionRequestDTO.builder().status("Emergency").build();
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        AdmissionRequestDTO newAdmission = AdmissionRequestDTO.builder()
+            .patientId(3)
+            .doctorId(3)
+            .purposeId(3)
+            .admissionDate(now.plusDays(2))
+            .status("Emergency")
+            .build();
         mockMvc.perform(post("/admissions")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(newAdmission)))
@@ -71,7 +91,14 @@ public class AdmissionIntegrationTest {
 
     @Test
     public void testUpdateAdmission() throws Exception {
-        AdmissionRequestDTO updateAdmission = AdmissionRequestDTO.builder().status("Updated status").build();
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        AdmissionRequestDTO updateAdmission = AdmissionRequestDTO.builder()
+            .patientId(admission1.getPatientId())
+            .doctorId(admission1.getDoctorId())
+            .purposeId(admission1.getPurposeId())
+            .admissionDate(now.plusDays(3))
+            .status("Updated status")
+            .build();
         mockMvc.perform(put("/admissions/{id}", admission1.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateAdmission)))
