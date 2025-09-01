@@ -1,19 +1,16 @@
-# Use OpenJDK 21 as base image
-FROM eclipse-temurin:21-jre
-
-# Set working directory
+# Build stage
+FROM maven:3.9.0-eclipse-temurin-17 AS builder
 WORKDIR /app
 
-# Copy Maven wrapper and project files
-COPY .mvn/ .mvn
-COPY mvnw pom.xml ./
+# Copy pom.xml and mvnw files first (for caching dependencies)
+COPY pom.xml mvnw ./
+COPY .mvn .mvn
+
+# Make mvnw executable
+RUN chmod +x mvnw
+
+# Copy source
 COPY src ./src
 
-# Build the application
+# Build
 RUN ./mvnw clean package -DskipTests
-
-# Expose port 8080 (default for Spring Boot)
-EXPOSE 8080
-
-# Run the jar file
-CMD ["java", "-jar", "target/quickdemo-0.0.1-SNAPSHOT.jar"]
