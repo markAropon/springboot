@@ -4,7 +4,7 @@ import com.bootcamp.quickdemo.common.ApiResponse;
 import com.bootcamp.quickdemo.common.DefaultResponse;
 import com.bootcamp.quickdemo.exception.BadRequestException;
 import com.bootcamp.quickdemo.exception.ResourceNotFoundException;
-import com.bootcamp.quickdemo.model.UserModel;
+import com.bootcamp.quickdemo.model.Users;
 import com.bootcamp.quickdemo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -19,8 +19,8 @@ public class UserController {
     private final UserRepository userRepository;
 
     @GetMapping
-    public ApiResponse<List<UserModel>> getAllUsers() {
-        List<UserModel> users = userRepository.findAll();
+    public ApiResponse<List<Users>> getAllUsers() {
+        List<Users> users = userRepository.findAll();
         if (users.isEmpty()) {
             throw new ResourceNotFoundException("No users found.");
         }
@@ -28,33 +28,34 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ApiResponse<UserModel> getUserById(@PathVariable Long id) {
-        UserModel user = userRepository.findById(id)
+    public ApiResponse<Users> getUserById(@PathVariable Long id) {
+        Users user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User with ID " + id + " not found"));
         return DefaultResponse.displayFoundObject(user);
     }
 
     @PostMapping
-    public ApiResponse<UserModel> createUser(@RequestBody UserModel user) {
+    public ApiResponse<Users> createUser(@RequestBody Users user) {
         if (user.getEmail() == null || user.getEmail().isEmpty()) {
             throw new BadRequestException("Email cannot be empty");
         }
-        UserModel saved = userRepository.save(user);
+        Users saved = userRepository.save(user);
         return DefaultResponse.displayCreatedObject(saved);
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<UserModel> updateUser(@PathVariable Long id, @RequestBody UserModel userDetails) {
-        UserModel user = userRepository.findById(id)
+    public ApiResponse<Users> updateUser(@PathVariable Long id, @RequestBody Users userDetails) {
+        Users user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User with ID " + id + " not found"));
 
         if (userDetails.getEmail() == null || userDetails.getEmail().isEmpty()) {
             throw new BadRequestException("Email cannot be empty");
         }
 
-        user.setName(userDetails.getName());
+        user.setFirstName(userDetails.getFirstName());
+        user.setLastName(userDetails.getLastName());
         user.setEmail(userDetails.getEmail());
-        UserModel updated = userRepository.save(user);
+        Users updated = userRepository.save(user);
 
         return DefaultResponse.displayUpdatedObject(updated);
     }
