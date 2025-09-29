@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JWT_AuthenticationEntryPoint jwt_AuthenticationEntryPoint;
-    private final JWT_AuthenicationFIlter jwt_AuthenicationFIlter;
+    private final JWT_AuthenicationFIlter jwtAuthenticationFilter;
 
     @Bean
     public static PasswordEncoder passwordEncoder(){
@@ -32,23 +32,43 @@ public class SecurityConfig {
     }
 
     public static final String[] PUBLIC_ENDPOINTS = {
+        // Auth endpoints
         "/api/auth/register",
         "/api/auth/login",
+        
+        "/",
+        "/colors",
+        
+        // Swagger/OpenAPI documentation
         "/swagger-ui/**",
         "/v3/api-docs/**",
         "/swagger-ui.html",
         "/swagger-resources/**",
         "/webjars/**",
+        
+        // System endpoints
         "/error"
     };
-    // Patients endpoints (requires Patients or ADMIN role)
+    
+    // Patient endpoints (requires ROLE_PATIENT or ROLE_DOCTOR or ROLE_ADMIN)
     private static final String[] PATIENTS_ENDPOINTS = {
-
+        "/patients/**",
+        "/medical-history/**",
+        "/vital-signs/**",
+        "/patient-insurances/**"
     };
     
-    // Admin endpoints (requires ADMIN role)
+    // Doctor endpoints (requires ROLE_DOCTOR or ROLE_ADMIN)
+    private static final String[] DOCTOR_ENDPOINTS = {
+        "/doctors/**",
+        "/admissions/**"
+    };
+    
+    // Admin endpoints (requires ROLE_ADMIN)
     private static final String[] ADMIN_ENDPOINTS = {
-        "/api/admin/**"
+        "/api/admin/**",
+        "/users/**",
+        "/insurances/**"
     };
      @Bean 
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
@@ -58,12 +78,22 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
             .authorizeHttpRequests(auth -> auth
+                // Public endpoints accessible without authentication
                 .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
-                .requestMatchers(PATIENTS_ENDPOINTS).hasAnyAuthority("ROLE_PATIENT", "ROLE_ADMIN")
+                
+                // Patient-related endpoints - accessible by patients, doctors, and admins
+                .requestMatchers(PATIENTS_ENDPOINTS).hasAnyAuthority("ROLE_PATIENT", "ROLE_DOCTOR", "ROLE_ADMIN")
+                
+                // Doctor-related endpoints - accessible by doctors and admins
+                .requestMatchers(DOCTOR_ENDPOINTS).hasAnyAuthority("ROLE_DOCTOR", "ROLE_ADMIN")
+                
+                // Admin-only endpoints
                 .requestMatchers(ADMIN_ENDPOINTS).hasAuthority("ROLE_ADMIN")
+                
+                // Any other endpoints require authentication
                 .anyRequest().authenticated())
             .exceptionHandling(exception -> exception.authenticationEntryPoint(jwt_AuthenticationEntryPoint))
-            .addFilterBefore(jwt_AuthenicationFIlter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return httpSecurity.build();
     };
