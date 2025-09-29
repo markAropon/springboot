@@ -1,23 +1,16 @@
 package com.bootcamp.quickdemo.controller;
 
-import com.bootcamp.quickdemo.dto.AdmissionResponseDTO;
-import com.bootcamp.quickdemo.dto.InsuranceResponseDTO;
-import com.bootcamp.quickdemo.dto.MedicalHistoryDTO;
-import com.bootcamp.quickdemo.dto.PatientInsuranceRequestDTO;
-import com.bootcamp.quickdemo.dto.PatientInsuranceResponseDTO;
-import com.bootcamp.quickdemo.dto.PatientRequestDTO;
-import com.bootcamp.quickdemo.dto.PatientResponseDTO;
-import com.bootcamp.quickdemo.services.AdmissionService;
-import com.bootcamp.quickdemo.services.InsuranceService;
-import com.bootcamp.quickdemo.services.MedicalHistoryService;
-import com.bootcamp.quickdemo.services.PatientInsuranceService;
-import com.bootcamp.quickdemo.services.PatientService;
+import com.bootcamp.quickdemo.common.ApiResponse;
+import com.bootcamp.quickdemo.common.DefaultResponse;
+import com.bootcamp.quickdemo.dto.*;
+import com.bootcamp.quickdemo.exception.ResourceNotFoundException;
+import com.bootcamp.quickdemo.services.*;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/patients")
@@ -31,66 +24,85 @@ public class PatientController {
     private final PatientInsuranceService patientInsuranceService;
 
     @GetMapping
-    public ResponseEntity<?> getAllPatients(
+    public ApiResponse<List<PatientResponseDTO>> getAllPatients(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "15") int size,
             @RequestParam(required = false) String name,
             @RequestParam(required = false) Integer age
     ) {
-        return ResponseEntity.ok(patientService.getPatients(page, size, name, age));
+        List<PatientResponseDTO> patients = (List<PatientResponseDTO>) patientService.getPatients(page, size, name, age);
+        return DefaultResponse.displayFoundObject(patients);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PatientResponseDTO> getPatientById(@PathVariable Long id) {
-        return ResponseEntity.ok(patientService.getPatientById(id));
+    public ApiResponse<PatientResponseDTO> getPatientById(@PathVariable Long id) {
+        Optional<PatientResponseDTO> patient = Optional.ofNullable(patientService.getPatientById(id));
+        return patient.map(DefaultResponse::displayFoundObject)
+                .orElseThrow(() -> new ResourceNotFoundException("Patient with ID " + id + " not found."));
     }
 
     @PostMapping
-    public ResponseEntity<PatientResponseDTO> createPatient(@RequestBody PatientRequestDTO patientDto) {
-        PatientResponseDTO createdPatient = patientService.createPatient(patientDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdPatient);
+    public ApiResponse<PatientResponseDTO> createPatient(@Valid @RequestBody PatientRequestDTO patientDto) {
+        return DefaultResponse.displayCreatedObject(patientService.createPatient(patientDto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PatientResponseDTO> updatePatient(@PathVariable Long id, @RequestBody PatientRequestDTO patientDto) {
-        return ResponseEntity.ok(patientService.updatePatient(id, patientDto));
+    public ApiResponse<PatientResponseDTO> updatePatient(@PathVariable Long id, @Valid @RequestBody PatientRequestDTO patientDto) {
+        PatientResponseDTO updated = patientService.updatePatient(id, patientDto);
+        if (updated == null) {
+            throw new ResourceNotFoundException("Cannot update patient. ID " + id + " not found.");
+        }
+        return DefaultResponse.displayUpdatedObject(updated);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePatient(@PathVariable Long id) {
+    public ApiResponse<Void> deletePatient(@PathVariable Long id) {
         patientService.deletePatient(id);
-        return ResponseEntity.noContent().build();
+        return DefaultResponse.displayDeletedObject(null);
     }
-    
+
     @GetMapping("/{id}/admissions")
-    public ResponseEntity<List<AdmissionResponseDTO>> getPatientAdmissions(@PathVariable Long id) {
-        return ResponseEntity.ok(admissionService.getAdmissionsByPatient(id));
+    public ApiResponse<List<AdmissionResponseDTO>> getPatientAdmissions(@PathVariable Long id) {
+        List<AdmissionResponseDTO> admissions = admissionService.getAdmissionsByPatient(id);
+        if (admissions.isEmpty()) {
+            throw new ResourceNotFoundException("No admissions found for patient ID " + id + ".");
+        }
+        return DefaultResponse.displayFoundObject(admissions);
     }
-    
+
     @GetMapping("/{id}/medical-history")
-    public ResponseEntity<List<MedicalHistoryDTO>> getPatientMedicalHistory(@PathVariable Long id) {
-        return ResponseEntity.ok(medicalHistoryService.getByPatient(id));
+    public ApiResponse<List<MedicalHistoryDTO>> getPatientMedicalHistory(@PathVariable Long id) {
+        List<MedicalHistoryDTO> histories = medicalHistoryService.getByPatient(id);
+        if (histories.isEmpty()) {
+            throw new ResourceNotFoundException("No medical history found for patient ID " + id + ".");
+        }
+        return DefaultResponse.displayFoundObject(histories);
     }
-    
+
     @PostMapping("/{id}/medical-history")
-    public ResponseEntity<MedicalHistoryDTO> addPatientMedicalHistory(
-            @PathVariable Long id, 
-            @RequestBody MedicalHistoryDTO dto) {
+    public ApiResponse<MedicalHistoryDTO> addPatientMedicalHistory(
+            @PathVariable Long id,
+            @RequestBody MedicalHistoryDTO dto
+    ) {
         dto.setPatientId(id);
-        return ResponseEntity.status(HttpStatus.CREATED).body(medicalHistoryService.create(dto));
+        return DefaultResponse.displayCreatedObject(medicalHistoryService.create(dto));
     }
 
     @GetMapping("/{id}/insurances")
-    public ResponseEntity<List<InsuranceResponseDTO>> getPatientInsurances(@PathVariable Long id) {
-        return ResponseEntity.ok(insuranceService.getInsurancesByPatient(id));
+    public ApiResponse<List<InsuranceResponseDTO>> getPatientInsurances(@PathVariable Long id) {
+        List<InsuranceResponseDTO> insurances = insuranceService.getInsurancesByPatient(id);
+        if (insurances.isEmpty()) {
+            throw new ResourceNotFoundException("No insurances found for patient ID " + id + ".");
+        }
+        return DefaultResponse.displayFoundObject(insurances);
     }
-    
+
     @PostMapping("/{id}/insurances")
-    public ResponseEntity<PatientInsuranceResponseDTO> addPatientInsurance(
+    public ApiResponse<PatientInsuranceResponseDTO> addPatientInsurance(
             @PathVariable Long id,
-            @RequestBody PatientInsuranceRequestDTO dto) {
+            @RequestBody PatientInsuranceRequestDTO dto
+    ) {
         dto.setPatientId(id);
-        PatientInsuranceResponseDTO created = patientInsuranceService.createPatientInsurance(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        return DefaultResponse.displayCreatedObject(patientInsuranceService.createPatientInsurance(dto));
     }
 }

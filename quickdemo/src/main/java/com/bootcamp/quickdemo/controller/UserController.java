@@ -1,45 +1,50 @@
 package com.bootcamp.quickdemo.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
-
+import com.bootcamp.quickdemo.common.ApiResponse;
+import com.bootcamp.quickdemo.common.DefaultResponse;
+import com.bootcamp.quickdemo.exception.BadRequestException;
+import com.bootcamp.quickdemo.exception.ResourceNotFoundException;
 import com.bootcamp.quickdemo.model.UserModel;
 import com.bootcamp.quickdemo.repository.UserRepository;
-import com.bootcamp.quickdemo.exception.ResourceNotFoundException;
-import com.bootcamp.quickdemo.exception.BadRequestException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/users")
+@RequiredArgsConstructor
 public class UserController {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @GetMapping
-    public List<UserModel> getAllUsers() {
-        return userRepository.findAll();
+    public ApiResponse<List<UserModel>> getAllUsers() {
+        List<UserModel> users = userRepository.findAll();
+        if (users.isEmpty()) {
+            throw new ResourceNotFoundException("No users found.");
+        }
+        return DefaultResponse.displayFoundObject(users);
     }
 
     @GetMapping("/{id}")
-    public UserModel getUserById(@PathVariable Long id) {
-        return userRepository.findById(id)
+    public ApiResponse<UserModel> getUserById(@PathVariable Long id) {
+        UserModel user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User with ID " + id + " not found"));
+        return DefaultResponse.displayFoundObject(user);
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public UserModel createUser(@RequestBody UserModel user) {
+    public ApiResponse<UserModel> createUser(@RequestBody UserModel user) {
         if (user.getEmail() == null || user.getEmail().isEmpty()) {
             throw new BadRequestException("Email cannot be empty");
         }
-        return userRepository.save(user);
+        UserModel saved = userRepository.save(user);
+        return DefaultResponse.displayCreatedObject(saved);
     }
 
     @PutMapping("/{id}")
-    public UserModel updateUser(@PathVariable Long id, @RequestBody UserModel userDetails) {
+    public ApiResponse<UserModel> updateUser(@PathVariable Long id, @RequestBody UserModel userDetails) {
         UserModel user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User with ID " + id + " not found"));
 
@@ -49,14 +54,17 @@ public class UserController {
 
         user.setName(userDetails.getName());
         user.setEmail(userDetails.getEmail());
-        return userRepository.save(user);
+        UserModel updated = userRepository.save(user);
+
+        return DefaultResponse.displayUpdatedObject(updated);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable Long id) {
+    public ApiResponse<Void> deleteUser(@PathVariable Long id) {
         if (!userRepository.existsById(id)) {
             throw new ResourceNotFoundException("User with ID " + id + " not found");
         }
         userRepository.deleteById(id);
+        return DefaultResponse.displayDeletedObject(null);
     }
 }

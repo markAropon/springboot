@@ -1,48 +1,62 @@
 package com.bootcamp.quickdemo.controller;
 
+import com.bootcamp.quickdemo.common.ApiResponse;
+import com.bootcamp.quickdemo.common.DefaultResponse;
 import com.bootcamp.quickdemo.dto.DoctorRequestDTO;
 import com.bootcamp.quickdemo.dto.DoctorResponseDTO;
+import com.bootcamp.quickdemo.exception.ResourceNotFoundException;
 import com.bootcamp.quickdemo.services.DoctorService;
-import org.springframework.http.HttpStatus;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/doctors")
+@RequiredArgsConstructor
 public class DoctorController {
 
     private final DoctorService doctorService;
 
-    public DoctorController(DoctorService doctorService) {
-        this.doctorService = doctorService;
-    }
-
     @GetMapping
-    public ResponseEntity<List<DoctorResponseDTO>> getAllDoctors() {
-        return ResponseEntity.ok(doctorService.getAllDoctors());
+    public ApiResponse<List<DoctorResponseDTO>> getAllDoctors() {
+        List<DoctorResponseDTO> doctors = doctorService.getAllDoctors();
+        if (doctors.isEmpty()) {
+            throw new ResourceNotFoundException("No doctors found.");
+        }
+        return DefaultResponse.displayFoundObject(doctors);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<DoctorResponseDTO> getDoctorById(@PathVariable Long id) {
-        return ResponseEntity.ok(doctorService.getDoctorById(id));
+        Optional<DoctorResponseDTO> doctor = Optional.ofNullable(doctorService.getDoctorById(id));
+        return doctor.map(ResponseEntity::ok)
+                .orElseThrow(() -> new ResourceNotFoundException("Doctor with ID " + id + " not found."));
     }
 
     @PostMapping
-    public ResponseEntity<DoctorResponseDTO> createDoctor(@RequestBody DoctorRequestDTO doctorDto) {
-        DoctorResponseDTO createdDoctor = doctorService.createDoctor(doctorDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdDoctor);
+    public ApiResponse<DoctorResponseDTO> createDoctor(@Valid @RequestBody DoctorRequestDTO doctorDto) {
+        return DefaultResponse.displayCreatedObject(doctorService.createDoctor(doctorDto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<DoctorResponseDTO> updateDoctor(@PathVariable Long id, @RequestBody DoctorRequestDTO doctorDto) {
-        return ResponseEntity.ok(doctorService.updateDoctor(id, doctorDto));
+    public ApiResponse<DoctorResponseDTO> updateDoctor(
+            @PathVariable Long id,
+            @Valid @RequestBody DoctorRequestDTO doctorDto
+    ) {
+        DoctorResponseDTO updated = doctorService.updateDoctor(id, doctorDto);
+        if (updated == null) {
+            throw new ResourceNotFoundException("Cannot update doctor. ID " + id + " not found.");
+        }
+        return DefaultResponse.displayUpdatedObject(updated);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteDoctor(@PathVariable Long id) {
+  @DeleteMapping("/{id}") 
+  public ApiResponse<Void> deleteDoctor(@PathVariable Long id) {
         doctorService.deleteDoctor(id);
-        return ResponseEntity.noContent().build();
+        return DefaultResponse.displayDeletedObject(null);
     }
 }

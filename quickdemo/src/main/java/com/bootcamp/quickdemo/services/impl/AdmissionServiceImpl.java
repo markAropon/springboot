@@ -13,6 +13,7 @@ import com.bootcamp.quickdemo.repository.AdmissionRepository;
 import com.bootcamp.quickdemo.services.AdmissionService;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,12 +42,7 @@ public class AdmissionServiceImpl implements AdmissionService {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public AdmissionResponseDTO getAdmissionById(Integer id) {
-        return admissionRepository.findById(id)
-                .map(admissionMapper::toResponseDTO)
-                .orElseThrow(() -> new ResourceNotFoundException("Admission not found with ID: " + id));
-    }
+
 
     @Override
     public AdmissionResponseDTO updateAdmission(Integer id, AdmissionRequestDTO dto) {
@@ -83,5 +79,12 @@ public class AdmissionServiceImpl implements AdmissionService {
                 .stream()
                 .map(admissionMapper::toResponseDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<AdmissionResponseDTO> getAdmissionById(Integer id) {
+          return Optional.ofNullable(admissionRepository.findById(id)
+                .map(admissionMapper::toResponseDTO)
+                .orElseThrow(() -> new ResourceNotFoundException("Admission not found with ID: " + id)));
     }
 }

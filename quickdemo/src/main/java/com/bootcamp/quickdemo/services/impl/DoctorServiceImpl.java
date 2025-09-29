@@ -8,6 +8,7 @@ import com.bootcamp.quickdemo.mappers.Impl.DoctorMapper;
 import com.bootcamp.quickdemo.model.DoctorModel;
 import com.bootcamp.quickdemo.repository.DoctorRepository;
 import com.bootcamp.quickdemo.services.DoctorService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -64,7 +65,7 @@ public class DoctorServiceImpl implements DoctorService {
         }
         doctorRepository.deleteById(id);
     }
-    
+
     private void validateDoctorRequest(DoctorRequestDTO doctor) {
         if (doctor.getName() == null || doctor.getName().isEmpty()) {
             throw new BadRequestException("Doctor name cannot be empty");

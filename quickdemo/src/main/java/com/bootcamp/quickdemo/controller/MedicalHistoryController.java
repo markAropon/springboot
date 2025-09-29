@@ -1,13 +1,15 @@
 package com.bootcamp.quickdemo.controller;
 
+import com.bootcamp.quickdemo.common.ApiResponse;
+import com.bootcamp.quickdemo.common.DefaultResponse;
+import com.bootcamp.quickdemo.dto.MedicalHistoryDTO;
+import com.bootcamp.quickdemo.exception.ResourceNotFoundException;
+import com.bootcamp.quickdemo.services.MedicalHistoryService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.bootcamp.quickdemo.dto.MedicalHistoryDTO;
-import com.bootcamp.quickdemo.services.MedicalHistoryService;
-
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/medical_history")
@@ -17,35 +19,47 @@ public class MedicalHistoryController {
     private final MedicalHistoryService service;
 
     @GetMapping
-    public ResponseEntity<List<MedicalHistoryDTO>> getAll() {
-        return ResponseEntity.ok(service.getAll());
+    public ApiResponse<List<MedicalHistoryDTO>> getAll() {
+        List<MedicalHistoryDTO> histories = service.getAll();
+        if (histories.isEmpty()) {
+            throw new ResourceNotFoundException("No medical history records found.");
+        }
+        return DefaultResponse.displayFoundObject(histories);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MedicalHistoryDTO> getById(@PathVariable Long id) {
-        MedicalHistoryDTO dto = service.getById(id);
-        return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.notFound().build();
+    public ApiResponse<MedicalHistoryDTO> getById(@PathVariable Long id) {
+        Optional<MedicalHistoryDTO> dto = Optional.ofNullable(service.getById(id));
+        return dto.map(DefaultResponse::displayFoundObject)
+                .orElseThrow(() -> new ResourceNotFoundException("Medical history with ID " + id + " not found."));
     }
 
     @GetMapping("/patient/{patientId}")
-    public ResponseEntity<List<MedicalHistoryDTO>> getByPatient(@PathVariable Long patientId) {
-        return ResponseEntity.ok(service.getByPatient(patientId));
+    public ApiResponse<List<MedicalHistoryDTO>> getByPatient(@PathVariable Long patientId) {
+        List<MedicalHistoryDTO> histories = service.getByPatient(patientId);
+        if (histories.isEmpty()) {
+            throw new ResourceNotFoundException("No medical history records found for patient ID " + patientId + ".");
+        }
+        return DefaultResponse.displayFoundObject(histories);
     }
 
     @PostMapping
-    public ResponseEntity<MedicalHistoryDTO> create(@RequestBody MedicalHistoryDTO dto) {
-        return ResponseEntity.ok(service.create(dto));
+    public ApiResponse<MedicalHistoryDTO> create(@RequestBody MedicalHistoryDTO dto) {
+        return DefaultResponse.displayCreatedObject(service.create(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<MedicalHistoryDTO> update(@PathVariable Long id, @RequestBody MedicalHistoryDTO dto) {
+    public ApiResponse<MedicalHistoryDTO> update(@PathVariable Long id, @RequestBody MedicalHistoryDTO dto) {
         MedicalHistoryDTO updated = service.update(id, dto);
-        return updated != null ? ResponseEntity.ok(updated) : ResponseEntity.notFound().build();
+        if (updated == null) {
+            throw new ResourceNotFoundException("Cannot update medical history. ID " + id + " not found.");
+        }
+        return DefaultResponse.displayUpdatedObject(updated);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ApiResponse<Void> delete(@PathVariable Long id) {
         service.delete(id);
-        return ResponseEntity.noContent().build();
+        return DefaultResponse.displayDeletedObject(null);
     }
 }

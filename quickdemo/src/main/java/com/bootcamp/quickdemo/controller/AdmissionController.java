@@ -1,17 +1,20 @@
 package com.bootcamp.quickdemo.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.bootcamp.quickdemo.common.ApiResponse;
+import com.bootcamp.quickdemo.common.DefaultResponse;
 import com.bootcamp.quickdemo.dto.AdmissionRequestDTO;
 import com.bootcamp.quickdemo.dto.AdmissionResponseDTO;
 import com.bootcamp.quickdemo.dto.VitalSignResponseDTO;
+import com.bootcamp.quickdemo.exception.ResourceNotFoundException;
 import com.bootcamp.quickdemo.services.AdmissionService;
 import com.bootcamp.quickdemo.services.VitalSignService;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/admissions")
@@ -22,37 +25,53 @@ public class AdmissionController {
     private final VitalSignService vitalSignService;
 
     @PostMapping
-    public ResponseEntity<AdmissionResponseDTO> createAdmission(@RequestBody AdmissionRequestDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(admissionService.createAdmission(dto));
+    public ApiResponse<AdmissionResponseDTO> createAdmission(@Valid @RequestBody AdmissionRequestDTO dto) {
+        return DefaultResponse.displayCreatedObject(admissionService.createAdmission(dto));
     }
-    
+
     @GetMapping
-    public ResponseEntity<List<AdmissionResponseDTO>> getAllAdmissions() {
-        return ResponseEntity.ok(admissionService.getAllAdmissions());
+    public ApiResponse<List<AdmissionResponseDTO>> getAllAdmissions() {
+        List<AdmissionResponseDTO> admissions = admissionService.getAllAdmissions();
+        if (admissions.isEmpty()) {
+            throw new ResourceNotFoundException("No admissions found.");
+        }
+        return DefaultResponse.displayFoundObject(admissions);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AdmissionResponseDTO> getAdmissionById(@PathVariable Integer id) {
-        return ResponseEntity.ok(admissionService.getAdmissionById(id));
+    public ApiResponse<AdmissionResponseDTO> getAdmissionById(@PathVariable Integer id) {
+        Optional<AdmissionResponseDTO> admission = (admissionService.getAdmissionById(id));
+        return admission.map(DefaultResponse::displayFoundObject)
+                .orElseThrow(() -> new ResourceNotFoundException("Admission with ID " + id + " not found."));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<AdmissionResponseDTO> updateAdmission(@PathVariable Integer id, @RequestBody AdmissionRequestDTO dto) {
-        return ResponseEntity.ok(admissionService.updateAdmission(id, dto));
+    public ApiResponse<AdmissionResponseDTO> updateAdmission(
+            @PathVariable Integer id,
+            @Valid @RequestBody AdmissionRequestDTO dto
+    ) {
+        AdmissionResponseDTO updated = admissionService.updateAdmission(id, dto);
+        if (updated == null) {
+            throw new ResourceNotFoundException("Cannot update admission. ID " + id + " not found.");
+        }
+        return DefaultResponse.displayUpdatedObject(updated);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAdmission(@PathVariable Integer id) {
+    public ApiResponse<Void> deleteAdmission(@PathVariable Integer id) {
         admissionService.deleteAdmission(id);
-        return ResponseEntity.noContent().build();
+        return DefaultResponse.displayDeletedObject(null);
     }
-    
-    // Admission-related endpoints
+
     @GetMapping("/{id}/vital-signs")
-    public ResponseEntity<List<VitalSignResponseDTO>> getAdmissionVitalSigns(@PathVariable Integer id) {
-        return ResponseEntity.ok(vitalSignService.getVitalSignsByAdmission(id));
+    public ApiResponse<List<VitalSignResponseDTO>> getAdmissionVitalSigns(@PathVariable Integer id) {
+        List<VitalSignResponseDTO> vitalSigns = vitalSignService.getVitalSignsByAdmission(id);
+        if (vitalSigns.isEmpty()) {
+            throw new ResourceNotFoundException("No vital signs found for admission ID " + id + ".");
+        }
+        return DefaultResponse.displayFoundObject(vitalSigns);
     }
-    
+
     // Additional endpoints for diagnoses, prescriptions, treatments, etc.
     // would be implemented here following the same pattern
 }
