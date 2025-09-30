@@ -30,7 +30,7 @@ public class PatientController {
             @RequestParam(required = false) String name,
             @RequestParam(required = false) Integer age
     ) {
-        List<PatientResponseDTO> patients = (List<PatientResponseDTO>) patientService.getPatients(page, size, name, age);
+        List<PatientResponseDTO> patients = patientService.getPatients(page, size, name, age).getContent();
         return DefaultResponse.displayFoundObject(patients);
     }
 
