@@ -51,13 +51,16 @@ public class Users {
     private String email;
 
     @Column(name = "date_created", nullable = false)
-    private LocalDateTime dateCreated;
+    @Builder.Default
+    private LocalDateTime dateCreated = LocalDateTime.now();
 
     @Column(name = "date_modified", nullable = false)
-    private LocalDateTime dateModified;
+    @Builder.Default
+    private LocalDateTime dateModified = LocalDateTime.now();
 
     @Column(name = "is_active", nullable = false)
-    private boolean isActive;
+    @Builder.Default
+    private boolean isActive = true;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
