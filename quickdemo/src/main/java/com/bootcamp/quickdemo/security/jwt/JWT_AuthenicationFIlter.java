@@ -23,6 +23,7 @@ import lombok.AllArgsConstructor;
 public class JWT_AuthenicationFIlter extends OncePerRequestFilter {
     private final JWT_TokenProvider jwt_TokenProvider;
     private final UserDetailsService user_details_service;
+    @SuppressWarnings("null")
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
