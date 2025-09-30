@@ -1,5 +1,6 @@
-    package com.bootcamp.quickdemo.dto;
+package com.bootcamp.quickdemo.dto;
 
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,4 +15,7 @@ public class UserDTO {
     private String firstName;
     private String lastName;
     private String email;
+    private LocalDateTime dateCreated;
+    private LocalDateTime dateModified;
+    private boolean isActive;
 }

@@ -11,6 +11,7 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,7 +21,8 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "roles") 
+@Table(name = "roles")
+@Builder
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,14 +35,17 @@ public class Role {
     private String description;
 
     @Column(name = "date_created", nullable = false)
-    private LocalDateTime dateCreated;
+    @Builder.Default
+    private LocalDateTime dateCreated = LocalDateTime.now();
 
     @Column(name = "date_modified", nullable = false)
-    private LocalDateTime dateModified;
+    @Builder.Default
+    private LocalDateTime dateModified = LocalDateTime.now();
 
      @PrePersist
     protected void onCreate() {
-        dateCreated = LocalDateTime.now();
+        this.dateCreated = LocalDateTime.now();
+        this.dateModified = LocalDateTime.now();
     }
 
     @PreUpdate

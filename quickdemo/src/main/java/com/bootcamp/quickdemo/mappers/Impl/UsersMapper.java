@@ -14,6 +14,9 @@ public class UsersMapper implements MapperConfig<Users, UserDTO> {
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())
+                .dateCreated(user.getDateCreated())
+                .dateModified(user.getDateModified())
+                .isActive(user.isActive())
                 .build();
     }
     
@@ -26,7 +29,9 @@ public class UsersMapper implements MapperConfig<Users, UserDTO> {
                 .email(dto.getEmail())
                 .username(dto.getEmail()) // Using email as username for simplicity
                 .password("") // Empty password, should be handled by service layer
-                .isActive(true) // Default to active
+                .dateCreated(dto.getDateCreated())
+                .dateModified(dto.getDateModified())
+                .isActive(dto.isActive())
                 .build();
     }
 }
