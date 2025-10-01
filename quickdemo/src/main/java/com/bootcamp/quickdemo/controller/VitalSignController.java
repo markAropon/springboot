@@ -6,11 +6,14 @@ import com.bootcamp.quickdemo.dto.VitalSignRequestDTO;
 import com.bootcamp.quickdemo.dto.VitalSignResponseDTO;
 import com.bootcamp.quickdemo.exception.ResourceNotFoundException;
 import com.bootcamp.quickdemo.services.VitalSignService;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "Vital Signs", description = "[PATIENT, DOCTOR, ADMIN] Patient vital signs management endpoints")
 public class VitalSignController {
 
     private final VitalSignService vitalSignService;

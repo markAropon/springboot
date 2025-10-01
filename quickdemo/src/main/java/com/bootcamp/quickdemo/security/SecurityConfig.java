@@ -38,10 +38,13 @@ public class SecurityConfig {
         
         "/",
         "/colors",
+        "/test-error",
+        "/validate/**",
         
         // Swagger/OpenAPI documentation
         "/swagger-ui/**",
         "/v3/api-docs/**",
+        "/api-docs/**",
         "/swagger-ui.html",
         "/swagger-resources/**",
         "/webjars/**",
