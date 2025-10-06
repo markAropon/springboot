@@ -6,6 +6,12 @@ import com.bootcamp.quickdemo.dto.InsuranceRequestDTO;
 import com.bootcamp.quickdemo.dto.InsuranceResponseDTO;
 import com.bootcamp.quickdemo.exception.ResourceNotFoundException;
 import com.bootcamp.quickdemo.services.InsuranceService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -16,10 +22,16 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/insurances")
 @RequiredArgsConstructor
+@Tag(name = "Insurance Management", description = "[ADMIN] Insurance provider management endpoints")
 public class InsuranceController {
 
     private final InsuranceService insuranceService;
 
+    @Operation(summary = "Get all insurance providers", description = "Retrieve a list of all insurance providers in the system")
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Insurance providers found"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "No insurance providers found")
+    })
     @GetMapping
     public ApiResponse<List<InsuranceResponseDTO>> getAllInsurances() {
         List<InsuranceResponseDTO> insurances = insuranceService.getAllInsurances();
@@ -29,21 +41,45 @@ public class InsuranceController {
         return DefaultResponse.displayFoundObject(insurances);
     }
 
+    @Operation(summary = "Get insurance provider by ID", description = "Retrieve a specific insurance provider by their ID")
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Insurance provider found"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Insurance provider not found")
+    })
     @GetMapping("/{id}")
-    public ApiResponse<InsuranceResponseDTO> getInsuranceById(@PathVariable Long id) {
+    public ApiResponse<InsuranceResponseDTO> getInsuranceById(
+        @Parameter(description = "ID of the insurance provider to retrieve", required = true, example = "1")
+        @PathVariable Long id) {
         Optional<InsuranceResponseDTO> insurance = Optional.ofNullable(insuranceService.getInsuranceById(id));
         return insurance.map(DefaultResponse::displayFoundObject)
                 .orElseThrow(() -> new ResourceNotFoundException("Insurance with ID " + id + " not found."));
     }
 
+    @Operation(summary = "Create a new insurance provider", description = "Add a new insurance provider to the system")
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Insurance provider created successfully"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid input data")
+    })
     @PostMapping
-    public ApiResponse<InsuranceResponseDTO> createInsurance(@Valid @RequestBody InsuranceRequestDTO insuranceDto) {
+    public ApiResponse<InsuranceResponseDTO> createInsurance(
+        @Parameter(description = "Insurance provider details", required = true)
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Insurance provider object that needs to be added",
+            content = @Content(schema = @Schema(implementation = InsuranceRequestDTO.class)))
+        @Valid @RequestBody InsuranceRequestDTO insuranceDto) {
         return DefaultResponse.displayCreatedObject(insuranceService.createInsurance(insuranceDto));
     }
 
+    @Operation(summary = "Update insurance provider", description = "Update an existing insurance provider's information")
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Insurance provider updated successfully"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Insurance provider not found"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid input data")
+    })
     @PutMapping("/{id}")
     public ApiResponse<InsuranceResponseDTO> updateInsurance(
+            @Parameter(description = "ID of the insurance provider to update", required = true, example = "1")
             @PathVariable Long id,
+            @Parameter(description = "Updated insurance provider details", required = true)
             @Valid @RequestBody InsuranceRequestDTO insuranceDto
     ) {
         InsuranceResponseDTO updated = insuranceService.updateInsurance(id, insuranceDto);
