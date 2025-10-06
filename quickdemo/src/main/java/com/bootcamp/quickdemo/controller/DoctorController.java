@@ -6,6 +6,7 @@ import com.bootcamp.quickdemo.dto.DoctorRequestDTO;
 import com.bootcamp.quickdemo.dto.DoctorResponseDTO;
 import com.bootcamp.quickdemo.exception.ResourceNotFoundException;
 import com.bootcamp.quickdemo.services.DoctorService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/doctors")
 @RequiredArgsConstructor
+@Tag(name = "Doctor Management", description = "[DOCTOR, ADMIN] Doctor management endpoints")
 public class DoctorController {
 
     private final DoctorService doctorService;

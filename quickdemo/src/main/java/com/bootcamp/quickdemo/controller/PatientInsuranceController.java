@@ -6,12 +6,15 @@ import com.bootcamp.quickdemo.dto.PatientInsuranceRequestDTO;
 import com.bootcamp.quickdemo.dto.PatientInsuranceResponseDTO;
 import com.bootcamp.quickdemo.exception.ResourceNotFoundException;
 import com.bootcamp.quickdemo.services.PatientInsuranceService;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/patient-insurances")
+@Tag(name = "Patient Insurance", description = "[PATIENT, DOCTOR, ADMIN] Patient insurance management endpoints")
 @RequiredArgsConstructor
 public class PatientInsuranceController {
 

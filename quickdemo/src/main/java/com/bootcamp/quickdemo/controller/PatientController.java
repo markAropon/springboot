@@ -1,10 +1,10 @@
 package com.bootcamp.quickdemo.controller;
-
 import com.bootcamp.quickdemo.common.ApiResponse;
 import com.bootcamp.quickdemo.common.DefaultResponse;
 import com.bootcamp.quickdemo.dto.*;
 import com.bootcamp.quickdemo.exception.ResourceNotFoundException;
 import com.bootcamp.quickdemo.services.*;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +15,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/patients")
 @RequiredArgsConstructor
+@Tag(name = "Patient Management", description = "[PATIENT, DOCTOR, ADMIN] Patient management endpoints")
 public class PatientController {
 
     private final PatientService patientService;
