@@ -51,10 +51,11 @@ public class AuthServiceImpl implements AuthService {
 
         // Use the role provided in the registration request instead of hardcoding
         String requestedRoleName = "ROLE_" + userRegistrationDTO.getRole().toUpperCase();
-        Role requestedRole = roleDao.findByRoleName(requestedRoleName).orElse(null);
+        Role requestedRole = roleDao.findByRoleName(requestedRoleName);
         if (requestedRole == null) {
             log.error("Requested role '{}' not found in the database", requestedRoleName);
-            throw new IllegalArgumentException("Role not found. Please ensure '" + requestedRoleName + "' role exists in database");
+            throw new IllegalArgumentException(
+                    "Role not found. Please ensure '" + requestedRoleName + "' role exists in database");
         }
         Set<Role> roles = new HashSet<>();
         roles.add(requestedRole);

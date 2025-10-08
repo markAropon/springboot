@@ -26,8 +26,7 @@ public class WebConfig implements WebMvcConfigurer {
                                                 "http://localhost:5173",
                                                 "http://localhost",
                                                 "http://127.0.0.1",
-                                                "https://react-in-bootcamp.vercel.app/"
-                                )
+                                                "https://react-in-bootcamp.vercel.app/")
                                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                                 .allowedHeaders("*")
                                 .allowCredentials(true);
