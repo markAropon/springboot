@@ -42,7 +42,10 @@ public class Users {
     private String lastName;
 
     @Column(nullable = false, unique = true)
-    private String username; 
+    private String username;
+    
+    @Column(nullable = false, unique = false)
+    private String Role;
 
     @Column(nullable = false)
     private String password;
