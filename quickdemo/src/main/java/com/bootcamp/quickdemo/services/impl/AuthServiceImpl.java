@@ -1,4 +1,5 @@
 package com.bootcamp.quickdemo.services.impl;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -44,22 +45,23 @@ public class AuthServiceImpl implements AuthService {
         user.setLastName(userRegistrationDTO.getLastName());
         user.setEmail(userRegistrationDTO.getEmail());
         user.setUsername(userRegistrationDTO.getUsername());
+        user.setRole(userRegistrationDTO.getRole());
         user.setPassword(passwordEncoder.encode(userRegistrationDTO.getPassword()));
         user.setActive(true);
 
-        // By default, assign CUSTOMER role
-        Role customerRole = roleDao.findByRoleName("CUSTOMER");
-        if (customerRole == null) {
-            log.error("Default role 'CUSTOMER' not found in the database");
-            throw new IllegalArgumentException("Role not found. Please ensure 'CUSTOMER' role exists in database");
+        // Use the role provided in the registration request instead of hardcoding
+        String requestedRoleName = "ROLE_" + userRegistrationDTO.getRole().toUpperCase();
+        Role requestedRole = roleDao.findByRoleName(requestedRoleName).orElse(null);
+        if (requestedRole == null) {
+            log.error("Requested role '{}' not found in the database", requestedRoleName);
+            throw new IllegalArgumentException("Role not found. Please ensure '" + requestedRoleName + "' role exists in database");
         }
-        
         Set<Role> roles = new HashSet<>();
-        roles.add(customerRole);
+        roles.add(requestedRole);
         user.setRoles(roles);
         userDao.save(user);
 
-        log.info("User {} registered successfully with CUSTOMER role", user.getUsername());
+        log.info("User {} registered successfully with {} role", user.getUsername(), requestedRoleName);
 
         return "User registered successfully";
     }
@@ -67,18 +69,18 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthResponseDTO login(LoginDTO loginDTO) {
         System.out.println("DEBUG: Login attempt for user: " + loginDTO.getUsernameOrEmail());
-        System.out.println("DEBUG: Password provided (length): " + 
-                          (loginDTO.getPassword() != null ? loginDTO.getPassword().length() : "null"));
-                          
+        System.out.println("DEBUG: Password provided (length): " +
+                (loginDTO.getPassword() != null ? loginDTO.getPassword().length() : "null"));
+
         try {
             Users user = userDao.findByUsernameOrEmail(loginDTO.getUsernameOrEmail(), loginDTO.getUsernameOrEmail())
-                .orElse(null);
-                
+                    .orElse(null);
+
             if (user != null) {
                 System.out.println("DEBUG: User found in database: " + user.getUsername());
                 System.out.println("DEBUG: User password hash: " + user.getPassword());
                 System.out.println("DEBUG: Attempting to match provided password...");
-                
+
                 boolean matches = passwordEncoder.matches(loginDTO.getPassword(), user.getPassword());
                 System.out.println("DEBUG: Password matches: " + matches);
             } else {
@@ -87,20 +89,18 @@ public class AuthServiceImpl implements AuthService {
         } catch (Exception e) {
             System.out.println("DEBUG: Error during manual verification: " + e.getMessage());
         }
-        
+
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginDTO.getUsernameOrEmail(),
-                            loginDTO.getPassword()
-                    )
-            );
-            
+                            loginDTO.getPassword()));
+
             System.out.println("DEBUG: Authentication successful!");
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String token = tokenProvider.generateToken(authentication);
             System.out.println("DEBUG: Token generated successfully");
-            
+
             return new AuthResponseDTO("User logged in successfully", token);
         } catch (Exception e) {
             System.out.println("DEBUG: Authentication failed: " + e.getMessage());
