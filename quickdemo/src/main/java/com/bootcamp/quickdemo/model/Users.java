@@ -28,7 +28,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "users")  
+@Table(name = "users")
 public class Users {
 
     @Id
@@ -43,9 +43,6 @@ public class Users {
 
     @Column(nullable = false, unique = true)
     private String username;
-    
-    @Column(nullable = false, unique = false)
-    private String Role;
 
     @Column(nullable = false)
     private String password;
@@ -66,11 +63,7 @@ public class Users {
     private boolean isActive = true;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-        name = "user_roles",
-        joinColumns = @JoinColumn(name = "user_id"),
-        inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
+    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     @Builder.Default
     private Set<Role> roles = new HashSet<>();
 
