@@ -2,6 +2,7 @@ package com.bootcamp.quickdemo.services.impl;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,6 +15,7 @@ import com.bootcamp.quickdemo.dao.RoleDao;
 import com.bootcamp.quickdemo.dao.UserDao;
 import com.bootcamp.quickdemo.dto.AuthResponseDTO;
 import com.bootcamp.quickdemo.dto.LoginDTO;
+import com.bootcamp.quickdemo.dto.UserDetailsDTO;
 import com.bootcamp.quickdemo.dto.UserRegistrationDTO;
 import com.bootcamp.quickdemo.model.Role;
 import com.bootcamp.quickdemo.model.Users;
@@ -107,6 +109,30 @@ public class AuthServiceImpl implements AuthService {
             e.printStackTrace();
             throw e;
         }
+    }
+
+    @Override
+    public UserDetailsDTO getCurrentUser(String username) {
+        log.info("Retrieving user details for: {}", username);
+
+        Users user = userDao.findByUsernameOrEmail(username, username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        Set<String> roleNames = user.getRoles().stream()
+                .map(Role::getRoleName)
+                .collect(Collectors.toSet());
+
+        return UserDetailsDTO.builder()
+                .id(user.getId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .roles(roleNames)
+                .isActive(user.isActive())
+                .dateCreated(user.getDateCreated())
+                .dateModified(user.getDateModified())
+                .build();
     }
 
     private void validateUser(UserRegistrationDTO userRegistrationDTO) {
