@@ -41,6 +41,14 @@ public class UserInitializer implements CommandLineRunner {
             roleRepository.save(adminRole);
             log.info("Created ROLE_ADMIN");
         }
+        if (!roleRepository.existsByRoleName("ADMIN")) {
+            Role adminRole = Role.builder()
+                .roleName("ADMIN")
+                .description("ADMIN role with full privileges")
+                .build();
+            roleRepository.save(adminRole);
+            log.info("Created ADMIN");
+        }
         
         if (!roleRepository.existsByRoleName("ROLE_USER")) {
             Role userRole = Role.builder()
@@ -75,7 +83,7 @@ public class UserInitializer implements CommandLineRunner {
         
         // Create admin user if it doesn't exist
         if (!userRepository.existsByUsername("admin")) {
-            Role adminRole = roleRepository.findByRoleName("ROLE_ADMIN");
+            Role adminRole = roleRepository.findByRoleName("ADMIN");
             Set<Role> adminRoles = new HashSet<>();
             adminRoles.add(adminRole);
             
