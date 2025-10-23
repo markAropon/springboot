@@ -10,19 +10,18 @@ import com.bootcamp.quickdemo.model.AdmissionModel;
 public class AdmissionMapper {
 
     public AdmissionModel toEntity(AdmissionRequestDTO dto) {
-        if (dto == null) {
+        if (dto == null)
             return null;
-        }
 
-        AdmissionModel entity = new AdmissionModel();
-        entity.setId(dto.getId());
-        entity.setAdmissionDate(dto.getAdmissionDate());
-        entity.setDischargeDate(dto.getDischargeDate());
-        entity.setStatus(dto.getStatus());
-        entity.setRoomNumber(dto.getRoomNumber());
-
-
-        return entity;
+        return AdmissionModel.builder()
+                .patientId(dto.getPatientId())
+                .doctorId(dto.getDoctorId())
+                .purposeId(dto.getPurposeId())
+                .admissionDate(dto.getAdmissionDate())
+                .dischargeDate(dto.getDischargeDate())
+                .status(dto.getStatus())
+                .roomNumber(dto.getRoomNumber())
+                .build();
     }
 
     public AdmissionResponseDTO toResponseDTO(AdmissionModel entity) {
