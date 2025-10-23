@@ -44,4 +44,9 @@ public class UserRegistrationDTO {
     @Pattern(regexp = "^(PATIENT|DOCTOR|ADMIN)$", message = "Role must be one of: PATIENT, DOCTOR, ADMIN")
     @Schema(example = "PATIENT", allowableValues = { "PATIENT", "DOCTOR", "ADMIN" })
     private String role;
+
+    @Schema(example = "+1234567890")
+    @NotBlank(message = "Phone number is required")
+    @Pattern(regexp = "^\\+?[0-9]{7,15}$", message = "Please provide a valid phone number")
+    private String phone;
 }

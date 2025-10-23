@@ -50,6 +50,9 @@ public class Users {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(nullable = false, unique = true)
+    private String phone;
+
     @Column(name = "date_created", nullable = false)
     @Builder.Default
     private LocalDateTime dateCreated = LocalDateTime.now();

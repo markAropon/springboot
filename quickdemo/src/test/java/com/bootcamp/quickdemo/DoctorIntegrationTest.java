@@ -70,8 +70,8 @@ public class DoctorIntegrationTest {
     public void testCreateDoctor() throws Exception {
         DoctorRequestDTO newDoctor = DoctorRequestDTO.builder().name("Dr. Alice").specialty("Pediatrics").build();
         mockMvc.perform(post("/doctors")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(newDoctor)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(newDoctor)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name", is("Dr. Alice")))
                 .andExpect(jsonPath("$.specialty", is("Pediatrics")));
@@ -79,10 +79,11 @@ public class DoctorIntegrationTest {
 
     @Test
     public void testUpdateDoctor() throws Exception {
-        DoctorRequestDTO updateDoctor = DoctorRequestDTO.builder().name("Dr. John Updated").specialty("Dermatology").build();
+        DoctorRequestDTO updateDoctor = DoctorRequestDTO.builder().name("Dr. John Updated").specialty("Dermatology")
+                .build();
         mockMvc.perform(put("/doctors/{id}", doctor1.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateDoctor)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateDoctor)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", is("Dr. John Updated")))
                 .andExpect(jsonPath("$.specialty", is("Dermatology")));
@@ -92,8 +93,8 @@ public class DoctorIntegrationTest {
     public void testUpdateDoctor_NotFound() throws Exception {
         DoctorRequestDTO updateDoctor = DoctorRequestDTO.builder().name("Ghost").specialty("None").build();
         mockMvc.perform(put("/doctors/{id}", 9999L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateDoctor)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateDoctor)))
                 .andExpect(status().is4xxClientError());
     }
 
@@ -102,6 +103,6 @@ public class DoctorIntegrationTest {
         mockMvc.perform(delete("/doctors/{id}", doctor1.getId()))
                 .andExpect(status().isNoContent());
         Optional<DoctorModel> deletedDoctor = doctorRepository.findById(doctor1.getId());
-        assert(deletedDoctor.isEmpty());
+        assert (deletedDoctor.isEmpty());
     }
 }

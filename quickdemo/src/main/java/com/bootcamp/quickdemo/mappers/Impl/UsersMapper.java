@@ -19,7 +19,7 @@ public class UsersMapper implements MapperConfig<Users, UserDTO> {
                 .isActive(user.isActive())
                 .build();
     }
-    
+
     @Override
     public Users toEntity(UserDTO dto) {
         return Users.builder()
