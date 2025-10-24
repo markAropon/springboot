@@ -35,6 +35,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JWT_TokenProvider tokenProvider;
+    private final RefreshTokenService refreshTokenService;
 
     @Override
     public String userRegistration(UserRegistrationDTO userRegistrationDTO) {
@@ -71,45 +72,23 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponseDTO login(LoginDTO loginDTO) {
-        System.out.println("DEBUG: Login attempt for user: " + loginDTO.getUsernameOrEmail());
-        System.out.println("DEBUG: Password provided (length): " +
-                (loginDTO.getPassword() != null ? loginDTO.getPassword().length() : "null"));
+        log.info("Login attempt for user: {}", loginDTO.getUsernameOrEmail());
 
-        try {
-            Users user = userDao.findByUsernameOrEmail(loginDTO.getUsernameOrEmail(), loginDTO.getUsernameOrEmail())
-                    .orElse(null);
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        loginDTO.getUsernameOrEmail(),
+                        loginDTO.getPassword()));
 
-            if (user != null) {
-                System.out.println("DEBUG: User found in database: " + user.getUsername());
-                System.out.println("DEBUG: User password hash: " + user.getPassword());
-                System.out.println("DEBUG: Attempting to match provided password...");
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String accessToken = tokenProvider.generateToken(authentication);
 
-                boolean matches = passwordEncoder.matches(loginDTO.getPassword(), user.getPassword());
-                System.out.println("DEBUG: Password matches: " + matches);
-            } else {
-                System.out.println("DEBUG: ⚠️ User not found in database!");
-            }
-        } catch (Exception e) {
-            System.out.println("DEBUG: Error during manual verification: " + e.getMessage());
-        }
+        Users user = userDao.findByUsernameOrEmail(loginDTO.getUsernameOrEmail(), loginDTO.getUsernameOrEmail())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        String refreshToken = refreshTokenService.createRefreshToken(user).getToken();
 
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            loginDTO.getUsernameOrEmail(),
-                            loginDTO.getPassword()));
+        log.info("User '{}' logged in successfully.", user.getUsername());
 
-            System.out.println("DEBUG: Authentication successful!");
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            String token = tokenProvider.generateToken(authentication);
-            System.out.println("DEBUG: Token generated successfully");
-
-            return new AuthResponseDTO("User logged in successfully", token);
-        } catch (Exception e) {
-            System.out.println("DEBUG: Authentication failed: " + e.getMessage());
-            e.printStackTrace();
-            throw e;
-        }
+        return new AuthResponseDTO("User logged in successfully", accessToken, refreshToken);
     }
 
     @Override
@@ -146,5 +125,20 @@ public class AuthServiceImpl implements AuthService {
             log.warn("Email '{}' is already taken", userRegistrationDTO.getEmail());
             throw new IllegalArgumentException("Email already exists");
         }
+    }
+
+    @Override
+    public AuthResponseDTO refreshAccessToken(String refreshToken) {
+        return refreshTokenService.findByToken(refreshToken)
+                .map(token -> {
+                    if (refreshTokenService.isExpired(token)) {
+                        refreshTokenService.deleteByUser(token.getUser());
+                        throw new IllegalArgumentException("Refresh token expired. Please log in again.");
+                    }
+
+                    String newAccessToken = tokenProvider.generateTokenFromUsername(token.getUser().getUsername());
+                    return new AuthResponseDTO("Token refreshed successfully", newAccessToken, refreshToken);
+                })
+                .orElseThrow(() -> new IllegalArgumentException("Invalid refresh token"));
     }
 }

@@ -11,4 +11,7 @@ public interface AuthService {
     AuthResponseDTO login(LoginDTO loginDTO);
 
     UserDetailsDTO getCurrentUser(String username);
+
+    AuthResponseDTO refreshAccessToken(String refreshToken);
+
 }

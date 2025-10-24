@@ -6,7 +6,7 @@ http://localhost:8081/swagger-ui.html
 
 The OpenAPI JSON definition is available at:
 
-```
+````
 http://localhost:8081/v3/api-docs
 ```I
 
@@ -30,14 +30,18 @@ A comprehensive RESTful API for hospital management built with Spring Boot, feat
 
 The API is fully documented using OpenAPI/Swagger. You can access the Swagger    UI at:
 
-```
+````
+
 http://localhost:8081/swagger-ui.html
+
 ```
 
 The OpenAPI JSON definition is available at:
 
 ```
+
 http://localhost:8081/api-docs
+
 ```
 
 ## Authentication
@@ -45,8 +49,10 @@ http://localhost:8081/api-docs
 ### Registration
 
 ```
+
 POST /api/auth/register
-```
+
+````
 
 Example request body:
 ```json
@@ -57,7 +63,7 @@ Example request body:
   "email": "john.doe@example.com",
   "password": "password123"
 }
-```
+````
 
 ### Login
 
@@ -66,6 +72,7 @@ POST /api/auth/login
 ```
 
 Example request body:
+
 ```json
 {
   "usernameOrEmail": "johndoe",

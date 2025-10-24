@@ -5,9 +5,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class AuthResponseDTO {
     private String message;
-    private String bearer;
+    private String accessToken;
+    private String refreshToken;
 }
