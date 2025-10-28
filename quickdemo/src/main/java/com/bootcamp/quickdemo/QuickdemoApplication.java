@@ -1,14 +1,14 @@
 package com.bootcamp.quickdemo;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import com.bootcamp.quickdemo.colors.ColorPrinter;
 import com.bootcamp.quickdemo.colors.ColorPrinterImpl;
 import com.bootcamp.quickdemo.config.PizzaConfig;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.bootcamp.quickdemo.services.impl.TestingAspectLogging;
 
 @SpringBootApplication
 public class QuickdemoApplication {
@@ -28,10 +28,14 @@ public class QuickdemoApplication {
 		pizzaConfig.setSauce("Pesto");
 
 		log.info(String.format(
-			"\n I want a pizza with %s crust, %s toppings, and %s sauce",
-			pizzaConfig.getCrust(),
-			pizzaConfig.getToppings(),
-			pizzaConfig.getSauce()
-		));
+				"\n I want a pizza with %s crust, %s toppings, and %s sauce",
+				pizzaConfig.getCrust(),
+				pizzaConfig.getToppings(),
+				pizzaConfig.getSauce()));
+
+		// Testing Aspect Logging
+		TestingAspectLogging testingAspectLogging = context.getBean("testingAspectLogging",
+				com.bootcamp.quickdemo.services.impl.TestingAspectLogging.class);
+		testingAspectLogging.testLogging();
 	}
 }
