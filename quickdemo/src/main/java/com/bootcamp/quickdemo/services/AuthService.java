@@ -10,6 +10,10 @@ public interface AuthService {
 
     AuthResponseDTO login(LoginDTO loginDTO);
 
+    void logout(String username);
+
+    String getAccessToken(String username);
+
     UserDetailsDTO getCurrentUser(String username);
 
     AuthResponseDTO refreshAccessToken(String refreshToken);

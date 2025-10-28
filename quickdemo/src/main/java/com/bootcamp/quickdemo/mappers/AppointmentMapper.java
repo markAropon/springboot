@@ -1,10 +1,11 @@
 package com.bootcamp.quickdemo.mappers;
 
+import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
+
 import com.bootcamp.quickdemo.dto.AppointmentRequestDTO;
 import com.bootcamp.quickdemo.dto.AppointmentResponseDTO;
 import com.bootcamp.quickdemo.model.AppointmentModel;
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface AppointmentMapper {

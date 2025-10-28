@@ -141,4 +141,18 @@ public class AuthServiceImpl implements AuthService {
                 })
                 .orElseThrow(() -> new IllegalArgumentException("Invalid refresh token"));
     }
+
+    @Override
+    public void logout(String username) {
+        Users user = userDao.findByUsernameOrEmail(username, username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        refreshTokenService.deleteByUser(user);
+        log.info("User '{}' logged out successfully.", username);
+    }
+
+    @Override
+    public String getAccessToken(String username) {
+        return tokenProvider.generateTokenFromUsername(username);
+    }
 }

@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.bootcamp.quickdemo.dao.RefreshTokenDao;
 import com.bootcamp.quickdemo.dao.UserDao;
@@ -55,6 +56,7 @@ public class RefreshTokenService {
         return token.getExpiryDate().isBefore(Instant.now());
     }
 
+    @Transactional
     public void deleteByUser(Users user) {
         refreshTokenRepository.deleteByUser(user);
     }

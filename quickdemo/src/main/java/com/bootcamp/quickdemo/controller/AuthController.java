@@ -72,4 +72,16 @@ public class AuthController {
         UserDetailsDTO userDetails = authService.getCurrentUser(principal.getName());
         return DefaultResponse.displayFoundObject(userDetails);
     }
+
+    @PostMapping("/logout")
+    public ApiResponse<String> logout(Principal principal) {
+        authService.logout(principal.getName());
+        return DefaultResponse.displayOkObject("User logged out successfully");
+    }
+
+    @PostMapping("/token")
+    public ApiResponse<String> getAccessToken(Principal principal) {
+        String accessToken = authService.getAccessToken(principal.getName());
+        return DefaultResponse.displayOkObject(accessToken);
+    }
 }
