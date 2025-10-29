@@ -1,15 +1,16 @@
 package com.bootcamp.quickdemo.dto;
 
+import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -33,4 +34,7 @@ public class AppointmentRequestDTO {
     private LocalDateTime appointmentAt;
 
     private String reason;
+
+    private Integer id;
+    private String status;
 }

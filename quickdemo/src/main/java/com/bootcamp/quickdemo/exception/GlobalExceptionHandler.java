@@ -27,15 +27,14 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GlobalExceptionHandler {
 
-    // See HTTP response  status codes:
+    // See HTTP response status codes:
     // https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status
 
     /**
      * Get the current HTTP request path.
      */
     private String getCurrentPath() {
-        ServletRequestAttributes attributes =
-                (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = attributes != null ? attributes.getRequest() : null;
         return request != null ? request.getRequestURI() : "N/A";
     }
@@ -97,7 +96,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ApiResponse<String>> handleUnauthorizedException(UnauthorizedException ex) {
-        ApiResponse<String> response = new  ApiResponse<>();
+        ApiResponse<String> response = new ApiResponse<>();
         response.setHttpStatus(HttpStatus.UNPROCESSABLE_ENTITY);
         response.setMessage("Invalid action: " + ex.getMessage());
         response.setPayload(null);
@@ -156,7 +155,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<ApiResponse<String>> handleMissingServletRequestParameter(MissingServletRequestParameterException ex) {
+    public ResponseEntity<ApiResponse<String>> handleMissingServletRequestParameter(
+            MissingServletRequestParameterException ex) {
         ApiResponse<String> response = new ApiResponse<>();
         response.setHttpStatus(HttpStatus.BAD_REQUEST);
         response.setMessage("Missing required parameter: " + ex.getParameterName());
@@ -178,7 +178,7 @@ public class GlobalExceptionHandler {
         response.setPath(getCurrentPath());
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
-    
+
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ApiResponse<String>> handleValidationException(ValidationException ex) {
         ApiResponse<String> response = new ApiResponse<>();
@@ -190,7 +190,7 @@ public class GlobalExceptionHandler {
         response.setPath(getCurrentPath());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
-    
+
     @ExceptionHandler(ConflictException.class)
     public ResponseEntity<ApiResponse<String>> handleConflictException(ConflictException ex) {
         ApiResponse<String> response = new ApiResponse<>();
@@ -213,6 +213,14 @@ public class GlobalExceptionHandler {
         response.setTimestamp(LocalDateTime.now());
         response.setPath(getCurrentPath());
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(TokenExpiredException.class)
+    public ResponseEntity<Map<String, String>> handleTokenExpired(TokenExpiredException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "TokenExpired");
+        response.put("message", ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
 
 }

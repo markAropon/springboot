@@ -23,14 +23,15 @@ public class LoggingAspect {
     public void logBeforeMethod(JoinPoint joinPoint) {
         String methodName = joinPoint.getSignature().getName();
 
-        System.out.println(YELLOW + "[ASPECT] Service method is about to be called: " + methodName + RESET);
+        System.out.println(YELLOW + "[ASPECT::Logging] Service method is about to be called: " + methodName + RESET);
     }
 
     @Before("execution(* com.bootcamp.quickdemo.config.*.*(..))")
     public void logBeforeMethodInConfig(JoinPoint joinPoint) {
         String methodName = joinPoint.getSignature().getName();
 
-        System.out.println(YELLOW + "[ASPECT] Configuration method is about to be called: " + methodName + RESET);
+        System.out.println(
+                YELLOW + "[ASPECT::Logging] Configuration method is about to be called: " + methodName + RESET);
     }
 
     @Around("execution(* com.bootcamp.quickdemo.services.impl.*.*(..))")
@@ -39,7 +40,8 @@ public class LoggingAspect {
         Object result = joinPoint.proceed();
         long duration = System.currentTimeMillis() - start;
         System.out
-                .println(BLUE + "[ASPECT] " + joinPoint.getSignature() + " executed in " + duration + " ms" + RESET);
+                .println(BLUE + "[ASPECT::Execution Time] " + joinPoint.getSignature() + " executed in " + duration
+                        + " ms" + RESET);
         return result;
     }
 
@@ -49,7 +51,8 @@ public class LoggingAspect {
         Object result = joinPoint.proceed();
         long duration = System.currentTimeMillis() - start;
         System.out
-                .println(BLUE + "[ASPECT] " + joinPoint.getSignature() + " executed in " + duration + " ms" + RESET);
+                .println(BLUE + "[ASPECT::Execution Time] " + joinPoint.getSignature() + " executed in " + duration
+                        + " ms" + RESET);
         return result;
     }
 }

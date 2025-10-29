@@ -1,9 +1,16 @@
 package com.bootcamp.quickdemo;
-// TODO not working
-import com.bootcamp.quickdemo.dto.MedicalHistoryDTO;
-import com.bootcamp.quickdemo.model.MedicalHistoryModel;
-import com.bootcamp.quickdemo.repository.MedicalHistoryRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,11 +19,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Optional;
-
-import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+//  not working
+import com.bootcamp.quickdemo.dto.MedicalHistoryDTO;
+import com.bootcamp.quickdemo.model.MedicalHistoryModel;
+import com.bootcamp.quickdemo.repository.MedicalHistoryRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -59,8 +66,8 @@ public class MedicalHistoryIntegrationTest {
     public void testCreateMedicalHistory() throws Exception {
         MedicalHistoryDTO newHistory = MedicalHistoryDTO.builder().patientId(1L).condition("Asthma").build();
         mockMvc.perform(post("/medical_history")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(newHistory)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(newHistory)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.description", is("Asthma")));
     }
@@ -69,8 +76,8 @@ public class MedicalHistoryIntegrationTest {
     public void testUpdateMedicalHistory() throws Exception {
         MedicalHistoryDTO updateHistory = MedicalHistoryDTO.builder().patientId(1L).condition("Updated Desc").build();
         mockMvc.perform(put("/medical_history/{id}", history1.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateHistory)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateHistory)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.description", is("Updated Desc")));
     }
@@ -80,6 +87,6 @@ public class MedicalHistoryIntegrationTest {
         mockMvc.perform(delete("/medical_history/{id}", history1.getId()))
                 .andExpect(status().isNoContent());
         Optional<MedicalHistoryModel> deletedHistory = medicalHistoryRepository.findById(history1.getId());
-        assert(deletedHistory.isEmpty());
+        assert (deletedHistory.isEmpty());
     }
 }

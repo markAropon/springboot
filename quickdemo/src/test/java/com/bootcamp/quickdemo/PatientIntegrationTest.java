@@ -1,9 +1,16 @@
 package com.bootcamp.quickdemo;
-//TODO not working 
-import com.bootcamp.quickdemo.dto.PatientRequestDTO;
-import com.bootcamp.quickdemo.model.PatientModel;
-import com.bootcamp.quickdemo.repository.PatientRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,11 +19,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Optional;
-
-import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+// not working 
+import com.bootcamp.quickdemo.dto.PatientRequestDTO;
+import com.bootcamp.quickdemo.model.PatientModel;
+import com.bootcamp.quickdemo.repository.PatientRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -64,8 +71,8 @@ public class PatientIntegrationTest {
     public void testCreatePatient() throws Exception {
         PatientRequestDTO newPatient = PatientRequestDTO.builder().name("Patient Three").build();
         mockMvc.perform(post("/patients")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(newPatient)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(newPatient)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name", is("Patient Three")))
                 .andExpect(jsonPath("$.age", is(25)));
@@ -75,8 +82,8 @@ public class PatientIntegrationTest {
     public void testUpdatePatient() throws Exception {
         PatientRequestDTO updatePatient = PatientRequestDTO.builder().name("Patient Updated").build();
         mockMvc.perform(put("/patients/{id}", patient1.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updatePatient)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updatePatient)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", is("Patient Updated")))
                 .andExpect(jsonPath("$.age", is(35)));
@@ -87,6 +94,6 @@ public class PatientIntegrationTest {
         mockMvc.perform(delete("/patients/{id}", patient1.getId()))
                 .andExpect(status().isNoContent());
         Optional<PatientModel> deletedPatient = patientRepository.findById(patient1.getId());
-        assert(deletedPatient.isEmpty());
+        assert (deletedPatient.isEmpty());
     }
 }
