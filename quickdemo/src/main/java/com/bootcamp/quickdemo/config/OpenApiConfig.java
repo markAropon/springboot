@@ -47,6 +47,7 @@ public class OpenApiConfig {
           "- 401: Unauthorized - Authentication required\n" +
           "- 403: Forbidden - Insufficient permissions\n" +
           "- 404: Not Found - Resource not found\n" +
+          "- 429: Too Many Request - Rate Limit Exceeded\n" +
           "- 500: Internal Server Error - Server-side issue\n\n" +
           "## Data Models\n" +
           "All data models include schema annotations for comprehensive documentation.")
@@ -56,7 +57,7 @@ public class OpenApiConfig {
         .url("https://github.com/MarkAropon")))
     .servers(Arrays.asList(
       new Server()
-        .url("/")
+        .url("http://localhost:8081")
         .description("Local Development Server"),
       new Server()
         .url("https://springboot-dklm.onrender.com")
