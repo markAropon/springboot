@@ -6,12 +6,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.view.RedirectView;
 
 import com.bootcamp.quickdemo.colors.SpanishBlue;
 import com.bootcamp.quickdemo.colors.SpanishGreen;
 import com.bootcamp.quickdemo.colors.SpanishRed;
 import com.bootcamp.quickdemo.common.ApiResponse;
 import com.bootcamp.quickdemo.common.DefaultResponse;
+import com.bootcamp.quickdemo.common.RateLimit;
 import com.bootcamp.quickdemo.exception.BadRequestException;
 import com.bootcamp.quickdemo.exception.ResourceNotFoundException;
 
@@ -19,10 +21,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.web.servlet.view.RedirectView;
 
 @RestController
 @Tag(name = "Home", description = "Home and test endpoints")
+@RateLimit(limit = 3, durationSeconds = 15)
 public class HomeController {
     private final SpanishBlue spanishBlue;
     private final SpanishGreen spanishGreen;
@@ -43,22 +45,22 @@ public class HomeController {
     @Operation(summary = "Test color printing", description = "Test endpoint for color printing")
     @GetMapping("/colors")
     public ApiResponse<String> printColor() {
-        String result = spanishBlue.printInColor() + ", " + spanishGreen.printInColor() + ", " + spanishRed.printInColor();
+        String result = spanishBlue.printInColor() + ", " + spanishGreen.printInColor() + ", "
+                + spanishRed.printInColor();
         return DefaultResponse.displayFoundObject(result);
     }
-    
+
     @Operation(summary = "Test error handling", description = "Endpoint to test different error scenarios")
     @ApiResponses(value = {
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Bad Request"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Not Found"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Internal Server Error")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Bad Request"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Not Found"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Internal Server Error")
     })
     @GetMapping("/test-error")
     public ApiResponse<String> testError(
-            @Parameter(description = "Type of error to simulate", required = true)
-            @RequestParam(defaultValue = "none") String type) {
-        
+            @Parameter(description = "Type of error to simulate", required = true) @RequestParam(defaultValue = "none") String type) {
+
         switch (type.toLowerCase()) {
             case "badrequest":
                 throw new BadRequestException("This is a simulated bad request error");
@@ -74,12 +76,11 @@ public class HomeController {
                 return DefaultResponse.displayFoundObject("No error simulation - working normally");
         }
     }
-    
+
     @Operation(summary = "Test path variable validation", description = "Test endpoint for path variable validation")
     @GetMapping("/validate/{id}")
     public ApiResponse<String> validatePathVariable(
-            @Parameter(description = "ID to validate", required = true, example = "123")
-            @PathVariable Long id) {
+            @Parameter(description = "ID to validate", required = true, example = "123") @PathVariable Long id) {
         if (id <= 0) {
             throw new BadRequestException("ID must be a positive number");
         }

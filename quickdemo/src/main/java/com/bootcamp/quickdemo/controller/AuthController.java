@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bootcamp.quickdemo.common.ApiResponse;
 import com.bootcamp.quickdemo.common.DefaultResponse;
+import com.bootcamp.quickdemo.common.RateLimit;
 import com.bootcamp.quickdemo.dto.AuthResponseDTO;
 import com.bootcamp.quickdemo.dto.LoginDTO;
 import com.bootcamp.quickdemo.dto.UserDetailsDTO;
@@ -30,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
 @Tag(name = "Authentication", description = "[PUBLIC] User registration and authentication endpoints")
+@RateLimit(limit = 3, durationSeconds = 15)
 public class AuthController {
     private final AuthService authService;
 

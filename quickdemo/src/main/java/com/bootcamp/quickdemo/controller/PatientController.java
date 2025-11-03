@@ -1,21 +1,44 @@
 package com.bootcamp.quickdemo.controller;
-import com.bootcamp.quickdemo.common.ApiResponse;
-import com.bootcamp.quickdemo.common.DefaultResponse;
-import com.bootcamp.quickdemo.dto.*;
-import com.bootcamp.quickdemo.exception.ResourceNotFoundException;
-import com.bootcamp.quickdemo.services.*;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.bootcamp.quickdemo.common.ApiResponse;
+import com.bootcamp.quickdemo.common.DefaultResponse;
+import com.bootcamp.quickdemo.common.RateLimit;
+import com.bootcamp.quickdemo.dto.AdmissionResponseDTO;
+import com.bootcamp.quickdemo.dto.InsuranceResponseDTO;
+import com.bootcamp.quickdemo.dto.MedicalHistoryDTO;
+import com.bootcamp.quickdemo.dto.PatientInsuranceRequestDTO;
+import com.bootcamp.quickdemo.dto.PatientInsuranceResponseDTO;
+import com.bootcamp.quickdemo.dto.PatientRequestDTO;
+import com.bootcamp.quickdemo.dto.PatientResponseDTO;
+import com.bootcamp.quickdemo.exception.ResourceNotFoundException;
+import com.bootcamp.quickdemo.services.AdmissionService;
+import com.bootcamp.quickdemo.services.InsuranceService;
+import com.bootcamp.quickdemo.services.MedicalHistoryService;
+import com.bootcamp.quickdemo.services.PatientInsuranceService;
+import com.bootcamp.quickdemo.services.PatientService;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/patients")
 @RequiredArgsConstructor
 @Tag(name = "Patient Management", description = "[PATIENT, DOCTOR, ADMIN] Patient management endpoints")
+@RateLimit(limit = 3, durationSeconds = 15)
 public class PatientController {
 
     private final PatientService patientService;
@@ -29,8 +52,7 @@ public class PatientController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "15") int size,
             @RequestParam(required = false) String name,
-            @RequestParam(required = false) Integer age
-    ) {
+            @RequestParam(required = false) Integer age) {
         List<PatientResponseDTO> patients = patientService.getPatients(page, size, name, age).getContent();
         return DefaultResponse.displayFoundObject(patients);
     }
@@ -48,7 +70,8 @@ public class PatientController {
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<PatientResponseDTO> updatePatient(@PathVariable Long id, @Valid @RequestBody PatientRequestDTO patientDto) {
+    public ApiResponse<PatientResponseDTO> updatePatient(@PathVariable Long id,
+            @Valid @RequestBody PatientRequestDTO patientDto) {
         PatientResponseDTO updated = patientService.updatePatient(id, patientDto);
         if (updated == null) {
             throw new ResourceNotFoundException("Cannot update patient. ID " + id + " not found.");
@@ -83,8 +106,7 @@ public class PatientController {
     @PostMapping("/{id}/medical-history")
     public ApiResponse<MedicalHistoryDTO> addPatientMedicalHistory(
             @PathVariable Long id,
-            @RequestBody MedicalHistoryDTO dto
-    ) {
+            @RequestBody MedicalHistoryDTO dto) {
         dto.setPatientId(id);
         return DefaultResponse.displayCreatedObject(medicalHistoryService.create(dto));
     }
@@ -101,8 +123,7 @@ public class PatientController {
     @PostMapping("/{id}/insurances")
     public ApiResponse<PatientInsuranceResponseDTO> addPatientInsurance(
             @PathVariable Long id,
-            @RequestBody PatientInsuranceRequestDTO dto
-    ) {
+            @RequestBody PatientInsuranceRequestDTO dto) {
         dto.setPatientId(id);
         return DefaultResponse.displayCreatedObject(patientInsuranceService.createPatientInsurance(dto));
     }

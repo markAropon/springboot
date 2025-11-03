@@ -1,21 +1,31 @@
 package com.bootcamp.quickdemo.controller;
 
+import java.util.List;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.bootcamp.quickdemo.common.ApiResponse;
 import com.bootcamp.quickdemo.common.DefaultResponse;
+import com.bootcamp.quickdemo.common.RateLimit;
 import com.bootcamp.quickdemo.dto.AppointmentRequestDTO;
 import com.bootcamp.quickdemo.dto.AppointmentResponseDTO;
 import com.bootcamp.quickdemo.services.AppointmentService;
+
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/appointments")
 @RequiredArgsConstructor
 @Tag(name = "Appointment Management", description = "[PATIENT, ADMIN] Manage appointments")
+@RateLimit(limit = 3, durationSeconds = 15)
 public class AppointmentController {
 
     private final AppointmentService appointmentService;

@@ -223,4 +223,9 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
 
+    @ExceptionHandler(RateLimitExceededException.class)
+    public ResponseEntity<String> handleRateLimitExceeded(RateLimitExceededException ex) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(ex.getMessage());
+    }
+
 }

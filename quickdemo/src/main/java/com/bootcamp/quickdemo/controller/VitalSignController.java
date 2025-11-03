@@ -1,7 +1,14 @@
 package com.bootcamp.quickdemo.controller;
 
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.bootcamp.quickdemo.common.ApiResponse;
 import com.bootcamp.quickdemo.common.DefaultResponse;
+import com.bootcamp.quickdemo.common.RateLimit;
 import com.bootcamp.quickdemo.dto.VitalSignRequestDTO;
 import com.bootcamp.quickdemo.dto.VitalSignResponseDTO;
 import com.bootcamp.quickdemo.exception.ResourceNotFoundException;
@@ -9,11 +16,11 @@ import com.bootcamp.quickdemo.services.VitalSignService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "Vital Signs", description = "[PATIENT, DOCTOR, ADMIN] Patient vital signs management endpoints")
+@RateLimit(limit = 3, durationSeconds = 15)
 public class VitalSignController {
 
     private final VitalSignService vitalSignService;

@@ -1,11 +1,20 @@
 package com.bootcamp.quickdemo.controller;
 
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.bootcamp.quickdemo.common.ApiResponse;
 import com.bootcamp.quickdemo.common.DefaultResponse;
+import com.bootcamp.quickdemo.common.RateLimit;
 import com.bootcamp.quickdemo.dto.AdmissionRequestDTO;
 import com.bootcamp.quickdemo.dto.AdmissionResponseDTO;
 import com.bootcamp.quickdemo.dto.VitalSignResponseDTO;
@@ -13,12 +22,13 @@ import com.bootcamp.quickdemo.exception.ResourceNotFoundException;
 import com.bootcamp.quickdemo.services.AdmissionService;
 import com.bootcamp.quickdemo.services.VitalSignService;
 
-import java.util.List;
-import java.util.Optional;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/admissions")
 @RequiredArgsConstructor
+@RateLimit(limit = 3, durationSeconds = 15)
 public class AdmissionController {
 
     private final AdmissionService admissionService;
@@ -48,8 +58,7 @@ public class AdmissionController {
     @PutMapping("/{id}")
     public ApiResponse<AdmissionResponseDTO> updateAdmission(
             @PathVariable Integer id,
-            @Valid @RequestBody AdmissionRequestDTO dto
-    ) {
+            @Valid @RequestBody AdmissionRequestDTO dto) {
         AdmissionResponseDTO updated = admissionService.updateAdmission(id, dto);
         if (updated == null) {
             throw new ResourceNotFoundException("Cannot update admission. ID " + id + " not found.");
